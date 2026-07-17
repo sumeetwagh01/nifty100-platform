@@ -114,43 +114,49 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 # Define the 8 pages using st.Page (Streamlit ≥ 1.36)
 # ---------------------------------------------------------------------------
+# Use absolute paths derived from __file__ so that st.Page() resolves
+# correctly whether Streamlit's main script is streamlit_app.py (Cloud/root)
+# or src/dashboard/app.py (local dev). Relative paths break on Cloud because
+# Streamlit resolves them relative to the main entry-point script, not app.py.
+_PAGES = Path(__file__).resolve().parent / "pages"
+
 home_page = st.Page(
-    "pages/01_home.py",
+    str(_PAGES / "01_home.py"),
     title="🏠 Home",
     icon="🏠",
 )
 profile_page = st.Page(
-    "pages/02_profile.py",
+    str(_PAGES / "02_profile.py"),
     title="🏢 Company Profile",
     icon="🏢",
 )
 screener_page = st.Page(
-    "pages/03_screener.py",
+    str(_PAGES / "03_screener.py"),
     title="🔍 Screener",
     icon="🔍",
 )
 peers_page = st.Page(
-    "pages/04_peers.py",
+    str(_PAGES / "04_peers.py"),
     title="👥 Peer Comparison",
     icon="👥",
 )
 trends_page = st.Page(
-    "pages/05_trends.py",
+    str(_PAGES / "05_trends.py"),
     title="📊 Trends",
     icon="📊",
 )
 sectors_page = st.Page(
-    "pages/06_sectors.py",
+    str(_PAGES / "06_sectors.py"),
     title="🏭 Sectors",
     icon="🏭",
 )
 capital_page = st.Page(
-    "pages/07_capital.py",
+    str(_PAGES / "07_capital.py"),
     title="💰 Capital Allocation",
     icon="💰",
 )
 reports_page = st.Page(
-    "pages/08_reports.py",
+    str(_PAGES / "08_reports.py"),
     title="📄 Reports",
     icon="📄",
 )

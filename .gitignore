@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+# data/nifty100.db — committed to repo for Streamlit Cloud deployment
+reports/tearsheets/*.pdf
+reports/sector/*.pdf
+reports/portfolio/*.pdf
+reports/radar_charts/*.png
+reports/pytest_report.html
+output/*
+!output/.gitkeep
+.ipynb_checkpoints/
+.DS_Store

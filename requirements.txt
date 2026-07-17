@@ -1,0 +1,17 @@
+# Nifty 100 Financial Intelligence Platform — Cloud requirements
+# Used by Streamlit Community Cloud (runtime only, no dev/test tools)
+# Full dev requirements (pytest, jupyter, black, ruff, etc.) are in requirements-dev.txt
+
+# --- Data ---
+pandas~=2.2.0
+numpy~=1.26.0
+openpyxl~=3.1.0
+
+# --- Analytics ---
+scipy~=1.13.0
+
+# --- Visualisation ---
+plotly~=5.22.0
+
+# --- Dashboard ---
+streamlit~=1.36.0

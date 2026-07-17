@@ -1,0 +1,83 @@
+======================================================================
+DQ-03 — Orphan rows, broken down by which table they came from
+======================================================================
+table
+documents        128
+cashflow          96
+profitandloss     91
+balancesheet      80
+analysis           4
+prosandcons        2
+
+Top 15 distinct company_id values causing DQ-03 orphans:
+company_id
+WIPRO         58
+ULTRACEMCO    53
+UNIONBANK     52
+UNITDSPR      52
+VEDL          52
+ZYDUSLIFE     52
+VBL           40
+ZOMATO        35
+AGTL           7
+
+Sample 10 DQ-03 rows:
+company_id    year                                                                              issue
+ULTRACEMCO 2013-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2014-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2015-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2016-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2017-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2018-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2019-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2020-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2021-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+ULTRACEMCO 2022-03 Orphan row in profitandloss: company_id 'ULTRACEMCO' not found in companies table.
+
+======================================================================
+DQ-02 — Duplicate (company_id, year) pairs, sample 10
+======================================================================
+company_id    year                                                                                   issue
+ADANIPORTS 2013-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2014-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2015-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2016-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2017-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2018-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2019-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2020-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2021-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+ADANIPORTS 2022-03 Duplicate (company_id, year) pair in profitandloss — deduplicate, keep last occurrence.
+
+Which companies have the most DQ-02 duplicates:
+company_id
+PNB           60
+ASIANPAINT    26
+POWERGRID     26
+TECHM         26
+ADANIPORTS    24
+TCS           24
+BAJAJ-AUTO    24
+ABB           22
+
+======================================================================
+DQ-07 — Unparseable year values, ALL distinct raw values seen
+======================================================================
+year
+TTM            100
+2024.5           5
+Mar 2016 9m      2
+Mar 2023 15      1
+
+Sample 10 DQ-07 rows:
+company_id        year                                                               issue
+       ABB         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ADANIENSOL         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+  ADANIENT         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ADANIGREEN         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ADANIPORTS         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ADANIPORTS         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ADANIPOWER         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+ AMBUJACEM Mar 2023 15 Unparseable year value 'Mar 2023 15' in profitandloss — reject row.
+ AMBUJACEM         TTM         Unparseable year value 'TTM' in profitandloss — reject row.
+APOLLOHOSP         TTM         Unparseable year value 'TTM' in profitandloss — reject row.

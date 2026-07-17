@@ -1,0 +1,18 @@
+
+======================================================================
+  Q01 — Row counts across all 10 tables
+======================================================================
+  tbl            rows
+  ---------------------
+  companies      92  
+  profitandloss  1070
+  balancesheet   1140
+  cashflow       1056
+  analysis       4   
+  documents      1456
+  prosandcons    14  
+  sectors        92  
+  stock_prices   5520
+  market_cap     552 
+
+  10 row(s)

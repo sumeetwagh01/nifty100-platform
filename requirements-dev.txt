@@ -1,0 +1,42 @@
+# Nifty 100 Financial Intelligence Platform — Dev requirements
+# Full development dependencies (testing, linting, notebooks, API, PDF, NLP)
+# Install: pip install -r requirements-dev.txt
+# (Streamlit Cloud uses requirements.txt — cloud-only deps live there)
+
+# --- Runtime (inherit from requirements.txt) ---
+-r requirements.txt
+
+# --- Database ---
+# sqlite3 is part of the Python standard library — no pip install needed
+
+# --- Analytics ---
+scikit-learn~=1.5.0
+
+# --- Visualisation ---
+matplotlib~=3.9.0
+
+# --- API ---
+fastapi~=0.111.0
+uvicorn~=0.30.0
+
+# --- PDF ---
+reportlab~=4.2.0
+
+# --- NLP ---
+nltk~=3.8.0
+# regex (pattern extraction) is part of the Python standard library — no pip install needed
+
+# --- Networking / config ---
+requests~=2.32.0
+pyyaml~=6.0.0
+python-dotenv~=1.0.0
+
+# --- Testing ---
+pytest~=7.4.0
+pytest-html~=4.1.0
+
+# --- Dev tooling ---
+jupyter~=1.1.0
+black~=24.4.0
+ruff~=0.4.0
+pre-commit~=3.7.0

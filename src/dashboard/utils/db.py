@@ -492,3 +492,223 @@ def get_peer_sector_data(sector: str) -> pd.DataFrame:
     with _connect() as conn:
         return pd.read_sql_query(sql, conn, params=(sector,))
 
+
+# ---------------------------------------------------------------------------
+# Trends page — Day 25
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=600)
+def get_trend_metrics(ticker: str) -> pd.DataFrame:
+    """
+    Multi-metric time-series for a single company — used by Trends page.
+
+    Returns one row per year with:
+        year, sales, net_profit, eps_in_rs,
+        return_on_equity_pct, roce_pct, debt_to_equity,
+        net_profit_margin_pct, free_cash_flow_cr
+    """
+    sql = """
+        SELECT
+            pl.year,
+            pl.sales,
+            pl.net_profit,
+            pl.eps          AS eps_in_rs,
+            fr.return_on_equity_pct,
+            fr.roce_pct,
+            fr.debt_to_equity,
+            fr.net_profit_margin_pct,
+            fr.free_cash_flow_cr
+        FROM profitandloss pl
+        LEFT JOIN financial_ratios fr
+            ON fr.company_id = pl.company_id AND fr.year = pl.year
+        WHERE pl.company_id = ?
+          AND pl.year != 'PARSE_ERROR'
+        ORDER BY pl.year
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn, params=(ticker,))
+
+
+# ---------------------------------------------------------------------------
+# Sectors page — Day 25
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=600)
+def get_sector_bubble_data() -> pd.DataFrame:
+    """
+    Data for sector bubble chart:
+        company_id, company_name, broad_sector, sub_sector,
+        sales (latest year), return_on_equity_pct (latest),
+        market_cap_crore (2024), composite_quality_score
+    """
+    sql = """
+        WITH latest_pl AS (
+            SELECT company_id, MAX(year) AS latest_year
+            FROM profitandloss
+            WHERE year != 'PARSE_ERROR'
+            GROUP BY company_id
+        ),
+        latest_fr AS (
+            SELECT company_id, MAX(year) AS latest_year
+            FROM financial_ratios
+            GROUP BY company_id
+        )
+        SELECT
+            c.id            AS company_id,
+            TRIM(c.company_name) AS company_name,
+            s.broad_sector,
+            s.sub_sector,
+            pl.sales,
+            fr.return_on_equity_pct,
+            fr.composite_quality_score,
+            mc.market_cap_crore
+        FROM companies c
+        JOIN sectors s ON s.company_id = c.id
+        JOIN latest_pl lp ON lp.company_id = c.id
+        JOIN profitandloss pl ON pl.company_id = c.id AND pl.year = lp.latest_year
+        JOIN latest_fr lf ON lf.company_id = c.id
+        JOIN financial_ratios fr ON fr.company_id = c.id AND fr.year = lf.latest_year
+        LEFT JOIN market_cap mc ON mc.company_id = c.id AND mc.year = 2024
+        ORDER BY s.broad_sector, company_name
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn)
+
+
+@st.cache_data(ttl=600)
+def get_sector_kpi_summary() -> pd.DataFrame:
+    """
+    Sector-level median KPIs for the Sectors bar chart.
+
+    Columns: broad_sector, median_roe, median_roce, median_npm,
+             median_de, company_count
+    """
+    sql = """
+        WITH latest AS (
+            SELECT company_id, MAX(year) AS latest_year
+            FROM financial_ratios
+            GROUP BY company_id
+        )
+        SELECT
+            s.broad_sector,
+            COUNT(DISTINCT fr.company_id)          AS company_count,
+            AVG(fr.return_on_equity_pct)            AS avg_roe,
+            AVG(fr.roce_pct)                        AS avg_roce,
+            AVG(fr.net_profit_margin_pct)           AS avg_npm,
+            AVG(fr.debt_to_equity)                  AS avg_de
+        FROM financial_ratios fr
+        JOIN latest l ON l.company_id = fr.company_id AND l.latest_year = fr.year
+        JOIN sectors s ON s.company_id = fr.company_id
+        WHERE s.broad_sector IS NOT NULL
+        GROUP BY s.broad_sector
+        ORDER BY avg_roe DESC
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn)
+
+
+# ---------------------------------------------------------------------------
+# Capital Allocation page — Day 25
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=600)
+def get_capital_allocation_map() -> pd.DataFrame:
+    """
+    Latest capital_allocation_pattern per company for the treemap.
+
+    Columns: company_id, company_name, broad_sector,
+             capital_allocation_pattern, composite_quality_score
+    """
+    sql = """
+        WITH latest AS (
+            SELECT company_id, MAX(year) AS latest_year
+            FROM financial_ratios
+            GROUP BY company_id
+        )
+        SELECT
+            fr.company_id,
+            TRIM(c.company_name) AS company_name,
+            s.broad_sector,
+            COALESCE(fr.capital_allocation_pattern, 'Unknown') AS pattern,
+            fr.composite_quality_score
+        FROM financial_ratios fr
+        JOIN latest l ON l.company_id = fr.company_id AND l.latest_year = fr.year
+        JOIN companies c ON c.id = fr.company_id
+        LEFT JOIN sectors s ON s.company_id = fr.company_id
+        ORDER BY fr.capital_allocation_pattern, fr.company_id
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn)
+
+
+# ---------------------------------------------------------------------------
+# Reports page — Day 25
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=600)
+def get_annual_reports(ticker: str) -> pd.DataFrame:
+    """
+    Annual report URLs for a single company from the documents table.
+
+    Columns: company_id, year, annual_report_url
+    """
+    sql = """
+        SELECT company_id, year, annual_report_url
+        FROM documents
+        WHERE company_id = ?
+          AND annual_report_url IS NOT NULL
+          AND annual_report_url != ''
+        ORDER BY year DESC
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn, params=(ticker,))
+
+
+# ---------------------------------------------------------------------------
+# Valuation page — Day 26
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=600)
+def get_valuation_data() -> pd.DataFrame:
+    """
+    Full valuation dataset for all companies — used by valuation.py and
+    the Valuation dashboard page.
+
+    Columns: company_id, company_name, broad_sector,
+             pe_ratio, pb_ratio, ev_ebitda, dividend_yield_pct,
+             market_cap_crore, free_cash_flow_cr, composite_quality_score
+    """
+    sql = """
+        WITH latest_fr AS (
+            SELECT company_id, MAX(year) AS latest_year
+            FROM financial_ratios
+            GROUP BY company_id
+        )
+        SELECT
+            fr.company_id,
+            TRIM(c.company_name)   AS company_name,
+            s.broad_sector,
+            mc.pe_ratio,
+            mc.pb_ratio,
+            mc.ev_ebitda,
+            mc.dividend_yield_pct,
+            mc.market_cap_crore,
+            fr.free_cash_flow_cr,
+            fr.composite_quality_score
+        FROM latest_fr lf
+        JOIN financial_ratios fr
+            ON fr.company_id = lf.company_id AND fr.year = lf.latest_year
+        JOIN companies c ON c.id = fr.company_id
+        LEFT JOIN sectors s ON s.company_id = fr.company_id
+        LEFT JOIN market_cap mc
+            ON mc.company_id = fr.company_id AND mc.year = 2024
+        ORDER BY fr.composite_quality_score DESC NULLS LAST
+    """
+    with _connect() as conn:
+        return pd.read_sql_query(sql, conn)
+

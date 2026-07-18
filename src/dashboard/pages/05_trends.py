@@ -82,6 +82,15 @@ if df.empty:
 df["year_num"] = df["year"].astype(str).str[:4].astype(int)
 df = df.sort_values("year_num").reset_index(drop=True)
 
+# Partial-data notice
+_yr_count = len(df)
+if _yr_count < 10:
+    st.info(
+        f"ℹ️ **{ticker}** has data for **{_yr_count} years** "
+        f"(years available: {df['year_num'].min()}–{df['year_num'].max()}). "
+        "CAGR metrics for earlier windows will show N/A."
+    )
+
 # ---------------------------------------------------------------------------
 # Build overlaid multi-metric chart
 # ---------------------------------------------------------------------------
